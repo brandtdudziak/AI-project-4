@@ -4,7 +4,7 @@
 # educational purposes provided that (1) you do not distribute or publish
 # solutions, (2) you retain this notice, and (3) you provide clear
 # attribution to UC Berkeley, including a link to http://ai.berkeley.edu.
-# 
+#
 # Attribution Information: The Pacman AI projects were developed at UC Berkeley.
 # The core projects and autograders were primarily created by John DeNero
 # (denero@cs.berkeley.edu) and Dan Klein (klein@cs.berkeley.edu).
@@ -148,17 +148,29 @@ class ExactInference(InferenceModule):
         emissionModel = busters.getObservationDistribution(noisyDistance)
         pacmanPosition = gameState.getPacmanPosition()
 
-        "*** YOUR CODE HERE ***"
-        util.raiseNotDefined()
+        # print(noisyDistance)
+        # print(emissionModel)
+        # print(pacmanPosition)
+        # print("NEXT")
 
-        # Replace this code with a correct observation update
-        # Be sure to handle the "jail" edge case where the ghost is eaten
-        # and noisyDistance is None
-        allPossible = util.Counter()
-        for p in self.legalPositions:
-            trueDistance = util.manhattanDistance(p, pacmanPosition)
-            if emissionModel[trueDistance] > 0:
-                allPossible[p] = 1.0
+        if noisyDistance == None:
+            allPossible = util.Counter()
+            allPossible[self.getJailPosition()] = 1
+        else:
+            # util.raiseNotDefined()
+
+            # Replace this code with a correct observation update
+            # Be sure to handle the "jail" edge case where the ghost is eaten
+            # and noisyDistance is None
+            allPossible = util.Counter()
+            for p in self.legalPositions:
+                trueDistance = util.manhattanDistance(p, pacmanPosition)
+
+                if trueDistance > emissionModel.sortedKeys()[-1]:
+                    allPossible[p] = 0 # NOT THERE
+
+                elif emissionModel[trueDistance] > 0:
+                    allPossible[p] = emissionModel[trueDistance] #*self.beliefs[p]
 
         "*** END YOUR CODE HERE ***"
 
@@ -525,4 +537,3 @@ def setGhostPositions(gameState, ghostPositions):
         conf = game.Configuration(pos, game.Directions.STOP)
         gameState.data.agentStates[index + 1] = game.AgentState(conf, False)
     return gameState
-
