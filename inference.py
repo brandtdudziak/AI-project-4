@@ -221,9 +221,10 @@ class ExactInference(InferenceModule):
         self.beliefs[pacmanPosition] = 0
 
         for pos in self.legalPositions:
-            posDist = self.getPositionDistribution(self.setGhostPosition(gameState, pos))
-            for newPos in posDist:
-                self.beliefs[newPos] *= posDist[newPos]
+            if pos != pacmanPosition:
+                posDist = self.getPositionDistribution(self.setGhostPosition(gameState, pos))
+                for newPos in posDist:
+                    self.beliefs[newPos] = self.beliefs[newPos]*posDist[newPos] if self.beliefs[newPos] != 0 else posDist[newPos]
 
         self.beliefs.normalize()
         return
