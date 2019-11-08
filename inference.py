@@ -218,15 +218,25 @@ class ExactInference(InferenceModule):
         positions after a time update from a particular position.
         """
         pacmanPosition = gameState.getPacmanPosition()
-        self.beliefs[pacmanPosition] = 0
+        next_state = self.beliefs.copy()
 
         for pos in self.legalPositions:
-            if pos != pacmanPosition:
-                posDist = self.getPositionDistribution(self.setGhostPosition(gameState, pos))
-                for newPos in posDist:
-                    self.beliefs[newPos] = self.beliefs[newPos]*posDist[newPos] if self.beliefs[newPos] != 0 else posDist[newPos]
+            posDist = self.getPositionDistribution(self.setGhostPosition(gameState, pos))
+            sum = 0
+            sum_false = 0
+            for newPos in posDist:
+                sum += self.beliefs[newPos] * posDist[newPos]
+                sum_false += 1 - self.beliefs[newPos] * (1 - posDist[newPos])
 
-        self.beliefs.normalize()
+            next = sum * self.beliefs[pos]
+            next_false = sum_false * (1 - self.beliefs[pos])
+            alpha = 1/(next+ next_false)
+
+            next_state[pos] = alpha * next
+
+        next_state.normalize()
+
+        self.beliefs = next_state.copy()
         return
         util.raiseNotDefined()
 
