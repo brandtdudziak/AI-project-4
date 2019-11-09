@@ -299,8 +299,8 @@ class ParticleFilter(InferenceModule):
         """
         particlesPerPos = self.numParticles // len(self.legalPositions)
         self.particles = []
-        for i in xrange(particlesPerPos):
-            for pos in self.legalPositions:
+        for pos in self.legalPositions:
+            for i in xrange(particlesPerPos):
                 self.particles.append(pos)
 
         remainderParticles = self.numParticles - (particlesPerPos * len(self.legalPositions))
@@ -341,30 +341,34 @@ class ParticleFilter(InferenceModule):
 
         weights = util.Counter()
 
+        # Jail edge case
         if noisyDistance == None:
             self.particles = [self.getJailPosition() for el in self.particles]
         else:
             for i in xrange(len(self.particles)):
                 distribution = self.getPositionDistribution(self.setGhostPosition(gameState, self.particles[i]))
+                # print(distribution)
                 if len(distribution) != 0:
+                    # Propagate forward in time
                     self.particles[i] = util.sample(distribution)
+
+                    # Weight particle based on evidence
                     dist = util.manhattanDistance(pacmanPosition, self.particles[i])
                     weights[self.particles[i]] += emissionModel[dist]
+                else:
+                    # print(self.particles[i])
+                    # If particles are stuck and have no position distribution
+                    # weights[self.particles[i]] = 1
+                    continue
 
-<<<<<<< HEAD
-        if weights.totalCount() == 0:
-            self.initializeUniformly(gameState)
-        else:
-            for i in xrange(len(self.particles)):
-                self.particles[i] = util.sample(weights)
-=======
             if weights.totalCount() == 0:
+                # Edge case resampling
                 self.particles = self.initializeUniformly(gameState)
             else:
+                # Resample
                 for i in xrange(len(self.particles)):
                     self.particles[i] = util.sample(weights)
 
->>>>>>> 223585d60991d864bbbc6e9f3b76e03827d25476
         return self.particles
 
     def elapseTime(self, gameState):
