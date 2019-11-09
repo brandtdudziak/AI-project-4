@@ -234,8 +234,6 @@ class ExactInference(InferenceModule):
         self.beliefs = next_state.copy()
         '''
         next_state = self.beliefs.copy()
-        # pacmanPosition = gameState.getPacmanPosition()
-        # next_state[pacmanPosition] = 0
 
         for newPos in self.legalPositions:
             posDist = self.getPositionDistribution(self.setGhostPosition(gameState, newPos))
