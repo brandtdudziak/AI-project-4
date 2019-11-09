@@ -306,9 +306,7 @@ class ParticleFilter(InferenceModule):
         remainderParticles = self.numParticles - (particlesPerPos * len(self.legalPositions))
         for i in xrange(remainderParticles):
             self.particles.append(random.choice(self.legalPositions))
-        
         return self.particles
-
 
     def observe(self, observation, gameState):
         """
@@ -340,23 +338,24 @@ class ParticleFilter(InferenceModule):
         noisyDistance = observation
         emissionModel = busters.getObservationDistribution(noisyDistance)
         pacmanPosition = gameState.getPacmanPosition()
-       
+
         weights = util.Counter()
 
         if noisyDistance == None:
             self.particles = [self.getJailPosition() for el in self.particles]
         else:
             for i in xrange(len(self.particles)):
-                self.particles[i] = util.sample(self.getPositionDistribution(self.setGhostPosition(gameState, self.particles[i])))
-                dist = util.manhattanDistance(pacmanPosition, self.particles[i])
-                weights[self.particles[i]] += emissionModel[dist]
+                distribution = self.getPositionDistribution(self.setGhostPosition(gameState, self.particles[i]))
+                if len(distribution) != 0:
+                    self.particles[i] = util.sample(distribution)
+                    dist = util.manhattanDistance(pacmanPosition, self.particles[i])
+                    weights[self.particles[i]] += emissionModel[dist]
 
         if weights.totalCount() == 0:
-            self.particles = self.initializeUniformly(gameState)
+            self.initializeUniformly(gameState)
         else:
             for i in xrange(len(self.particles)):
                 self.particles[i] = util.sample(weights)
-
         return self.particles
 
     def elapseTime(self, gameState):
@@ -386,8 +385,8 @@ class ParticleFilter(InferenceModule):
         beliefs = util.Counter()
         for particle in self.particles:
             beliefs[particle] += 1
-        
-        return beliefs.normalize()
+        beliefs.normalize()
+        return beliefs
 
 class MarginalInference(InferenceModule):
     """
