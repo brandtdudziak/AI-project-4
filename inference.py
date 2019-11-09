@@ -351,20 +351,12 @@ class ParticleFilter(InferenceModule):
                     dist = util.manhattanDistance(pacmanPosition, self.particles[i])
                     weights[self.particles[i]] += emissionModel[dist]
 
-<<<<<<< HEAD
-        if weights.totalCount() == 0:
-            self.initializeUniformly(gameState)
-        else:
-            for i in xrange(len(self.particles)):
-                self.particles[i] = util.sample(weights)
-=======
             if weights.totalCount() == 0:
                 self.particles = self.initializeUniformly(gameState)
             else:
                 for i in xrange(len(self.particles)):
                     self.particles[i] = util.sample(weights)
 
->>>>>>> 223585d60991d864bbbc6e9f3b76e03827d25476
         return self.particles
 
     def elapseTime(self, gameState):
