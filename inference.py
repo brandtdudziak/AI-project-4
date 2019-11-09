@@ -217,26 +217,51 @@ class ExactInference(InferenceModule):
         are used and how they combine to give us a belief distribution over new
         positions after a time update from a particular position.
         """
+
+        '''
         pacmanPosition = gameState.getPacmanPosition()
         next_state = self.beliefs.copy()
+        for newPos in self.legalPositions:
+            sum = self.beliefs[newPos]
+            posDist = self.getPositionDistribution(self.setGhostPosition(gameState, newPos))
+            for oldPos, prob in posDist.items():
+                # next_state[newPos] *= prob
+                sum *= prob * self.beliefs[oldPos]
 
-        for pos in self.legalPositions:
-            posDist = self.getPositionDistribution(self.setGhostPosition(gameState, pos))
-            sum = 0
-            sum_false = 0
-            for newPos in posDist:
-                sum += self.beliefs[newPos] * posDist[newPos]
-                sum_false += 1 - self.beliefs[newPos] * (1 - posDist[newPos])
+            next_state[newPos] = sum
 
-            next = sum * self.beliefs[pos]
-            next_false = sum_false * (1 - self.beliefs[pos])
-            alpha = 1/(next+ next_false)
+        next_state.normalize()
+        self.beliefs = next_state.copy()
+        '''
+        next_state = self.beliefs.copy()
+        # pacmanPosition = gameState.getPacmanPosition()
+        # next_state[pacmanPosition] = 0
 
-            next_state[pos] = alpha * next
+        for newPos in self.legalPositions:
+            posDist = self.getPositionDistribution(self.setGhostPosition(gameState, newPos))
+            for oldPos, prob in posDist.items():
+                next_state[newPos] += prob * self.beliefs[oldPos]
 
         next_state.normalize()
 
         self.beliefs = next_state.copy()
+
+        #
+        #
+        # next_state = self.beliefs.copy()
+        #
+        # for pos in self.legalPositions:
+        #     posDist = self.getPositionDistribution(self.setGhostPosition(gameState, pos))
+        #     sum = 0
+        #     for newPos in posDist:
+        #         sum += posDist[newPos] * next_state[newPos]
+        #         # self.beliefs[newPos] *= posDist[newPos]
+        #
+        #     self.beliefs[pos] *= sum * posDist.len
+        #
+        # self.beliefs.normalize()
+
+        # self.beliefs = next_state.copy()
         return
         util.raiseNotDefined()
 
