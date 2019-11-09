@@ -167,7 +167,6 @@ class GreedyBustersAgent(BustersAgent):
         bestPos = None
         for ghost in livingGhostPositionDistributions:
             pos = ghost.argMax()
-
             if self.distancer.getDistance(pos, pacmanPosition) < bestDist:
                 bestDist = self.distancer.getDistance(pos, pacmanPosition)
                 bestPos = pos
@@ -177,10 +176,8 @@ class GreedyBustersAgent(BustersAgent):
 
         for action in legal:
             successorPosition = Actions.getSuccessor(pacmanPosition, action)
-
-            if self.distancer.getDistance(pos, pacmanPosition) < bestDistanceAction:
-                bestDistanceAction = self.distancer.getDistance(successorPosition, pacmanPosition)
+            if self.distancer.getDistance(bestPos, successorPosition) < bestDistanceAction:
+                bestDistanceAction = self.distancer.getDistance(bestPos, successorPosition)
                 bestAction = action
-
         return bestAction # :-)
         util.raiseNotDefined()

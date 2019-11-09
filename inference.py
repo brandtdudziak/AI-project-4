@@ -340,36 +340,24 @@ class ParticleFilter(InferenceModule):
         pacmanPosition = gameState.getPacmanPosition()
 
         weights = util.Counter()
-
-        # Jail edge case
+        # Edge case
         if noisyDistance == None:
             self.particles = [self.getJailPosition() for el in self.particles]
         else:
-            for i in xrange(len(self.particles)):
-                distribution = self.getPositionDistribution(self.setGhostPosition(gameState, self.particles[i]))
-                # print(distribution)
-                if len(distribution) != 0:
-                    # Propagate forward in time
-                    self.particles[i] = util.sample(distribution)
-
-                    # Weight particle based on evidence
-                    dist = util.manhattanDistance(pacmanPosition, self.particles[i])
-                    weights[self.particles[i]] += emissionModel[dist]
-                else:
-                    # print(self.particles[i])
-                    # If particles are stuck and have no position distribution
-                    # weights[self.particles[i]] = 1
-                    continue
+            for particle in self.particles:
+                distance = util.manhattanDistance(pacmanPosition, particle)
+                prob = emissionModel[distance]
+                weights[particle] += prob
 
             if weights.totalCount() == 0:
                 # Edge case resampling
                 self.particles = self.initializeUniformly(gameState)
             else:
                 # Resample
+                weights.normalize()
                 for i in xrange(len(self.particles)):
                     self.particles[i] = util.sample(weights)
 
-        return self.particles
 
     def elapseTime(self, gameState):
         """
@@ -385,7 +373,7 @@ class ParticleFilter(InferenceModule):
         util.sample(Counter object) is a helper method to generate a sample from
         a belief distribution.
         """
-        "*** YOUR CODE HERE ***"
+
         util.raiseNotDefined()
 
     def getBeliefDistribution(self):
