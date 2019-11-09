@@ -239,8 +239,11 @@ class ExactInference(InferenceModule):
 
         for newPos in self.legalPositions:
             posDist = self.getPositionDistribution(self.setGhostPosition(gameState, newPos))
+            sum = 0
             for oldPos, prob in posDist.items():
-                next_state[newPos] += prob * self.beliefs[oldPos]
+                sum += prob * self.beliefs[oldPos]
+
+            next_state[newPos] = sum * self.beliefs[newPos]
 
         next_state.normalize()
 
