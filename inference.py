@@ -532,9 +532,12 @@ class JointParticleFilter:
         for particle in self.particles:
             weight = 1
             for i in xrange(self.numGhosts):
-                distance = util.manhattanDistance(pacmanPosition, particle[i])
-                prob = emissionModels[i][distance]
-                weight *= prob
+                if particle[i] == self.getJailPosition(i):
+                    weight = 1
+                else:
+                    distance = util.manhattanDistance(pacmanPosition, particle[i])
+                    prob = emissionModels[i][distance]
+                    weight *= prob
             weights[particle] += weight
 
         if weights.totalCount() == 0:
