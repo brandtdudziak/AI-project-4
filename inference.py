@@ -218,53 +218,17 @@ class ExactInference(InferenceModule):
         positions after a time update from a particular position.
         """
 
-        '''
-        pacmanPosition = gameState.getPacmanPosition()
-        next_state = self.beliefs.copy()
-        for newPos in self.legalPositions:
-            sum = self.beliefs[newPos]
-            posDist = self.getPositionDistribution(self.setGhostPosition(gameState, newPos))
-            for oldPos, prob in posDist.items():
-                # next_state[newPos] *= prob
-                sum *= prob * self.beliefs[oldPos]
-
-            next_state[newPos] = sum
-
-        next_state.normalize()
-        self.beliefs = next_state.copy()
-        '''
-        # new counter, not copy !!!!!!
-        #next_state = self.beliefs.copy()
         next_state = util.Counter()
 
-        for newPos in self.legalPositions:
-            posDist = self.getPositionDistribution(self.setGhostPosition(gameState, newPos))
-            sum = 0
-            for oldPos, prob in posDist.items():
-                sum += prob * self.beliefs[oldPos]
-
-            next_state[newPos] = sum * self.beliefs[newPos]
+        for ghostPos in self.legalPositions:
+            newPosDist = self.getPositionDistribution(self.setGhostPosition(gameState, ghostPos))
+            for newPos, prob in newPosDist.items():
+                next_state[newPos] += prob*self.beliefs[ghostPos]
 
         next_state.normalize()
 
         self.beliefs = next_state
 
-        #
-        #
-        # next_state = self.beliefs.copy()
-        #
-        # for pos in self.legalPositions:
-        #     posDist = self.getPositionDistribution(self.setGhostPosition(gameState, pos))
-        #     sum = 0
-        #     for newPos in posDist:
-        #         sum += posDist[newPos] * next_state[newPos]
-        #         # self.beliefs[newPos] *= posDist[newPos]
-        #
-        #     self.beliefs[pos] *= sum * posDist.len
-        #
-        # self.beliefs.normalize()
-
-        # self.beliefs = next_state.copy()
         return
         util.raiseNotDefined()
 
@@ -461,7 +425,7 @@ class JointParticleFilter:
         Storing your particles as a Counter (where there could be an associated
         weight with each position) is incorrect and may produce errors.
         """
-        
+
         permutations = list(itertools.product(self.legalPositions, repeat = self.numGhosts))
         random.shuffle(permutations)
 
@@ -528,7 +492,7 @@ class JointParticleFilter:
             if noisyDistances[i] == None:
                 for particle in xrange(len(self.particles)):
                     self.particles[particle] = self.getParticleWithGhostInJail(self.particles[particle], i)
-        
+
         for particle in self.particles:
             weight = 1
             for i in xrange(self.numGhosts):
