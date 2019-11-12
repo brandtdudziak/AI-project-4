@@ -322,7 +322,8 @@ class ParticleFilter(InferenceModule):
             else:
                 # Resample
                 weights.normalize()
-                self.particles = util.nSample(weights, None, len(self.particles))
+                for i in xrange(len(self.particles)):
+                    self.particles[i] = util.sample(weights)
 
 
     def elapseTime(self, gameState):
@@ -511,27 +512,6 @@ class JointParticleFilter:
             for i in xrange(len(self.particles)):
                 self.particles[i] = util.sample(weights)
 
-
-
-        # weights = util.Counter()
-        # # Edge case
-        # if noisyDistance == None:
-        #     self.particles = [self.getJailPosition() for el in self.particles]
-        # else:
-        #     for particle in self.particles:
-        #         distance = util.manhattanDistance(pacmanPosition, particle)
-        #         prob = emissionModel[distance]
-        #         weights[particle] += prob
-
-        #     if weights.totalCount() == 0:
-        #         # Edge case resampling
-        #         self.particles = self.initializeUniformly(gameState)
-        #     else:
-        #         # Resample
-        #         weights.normalize()
-        #         for i in xrange(len(self.particles)):
-        #             self.particles[i] = util.sample(weights)
-
     def getParticleWithGhostInJail(self, particle, ghostIndex):
         """
         Takes a particle (as a tuple of ghost positions) and returns a particle
@@ -590,9 +570,8 @@ class JointParticleFilter:
             newParticle = list(oldParticle) # A list of ghost positions
             # now loop through and update each entry in newParticle...
 
-            "*** YOUR CODE HERE ***"
-
-            "*** END YOUR CODE HERE ***"
+            
+            
             newParticles.append(tuple(newParticle))
         self.particles = newParticles
 
